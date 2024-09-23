@@ -1,9 +1,5 @@
 'use strict'
 
-var gLevel = {
-    SIZE: 4,
-    MINES: 2
-}
 
 var gGame = {
     isOn: false,
@@ -12,23 +8,38 @@ var gGame = {
     secsPassed: 0
 }
 
-var gBoard
-var gIsFirstClick = true
-var gMineCount = 4
-var gLiveCounter
+var gLevel = {
+    SIZE: 6,
+    MINES: 3
+}
+var gBoard , gIsFirstClick = true, gMineCount = 4, gLiveCounter
 
-const HAPPY_SMILEY = '😃'
-const SAD_SMILEY = '😔'
-const WIN_SMILEY = '😈'
-const BOOMB = '💣'
-const FLAG = '🇧🇾'
+
+const HAPPY_SMILEY = '😃' , WIN_SMILEY = '😈', SAD_SMILEY = '😔', 
+BOOMB = '💣',FLAG = '🇧🇾'
+
+
 function onInit() {
-    gBoard = buildBoard()
-    renderBoard(gBoard)
+    startNewGame()
+    
+}
+
+function startNewGame(){
+    gGame.isOn = true
+    gGame.shownCount = 0
+    gGame.markedCount = 0
+    gGame.secsPassed = 0
     gLiveCounter = 3
+    gIsFirstClick = true
+
     var happyMood = document.querySelector('.smiley')
     happyMood.innerHTML = HAPPY_SMILEY
-    gGame.isOn = true
+
+    liveIndication(gLiveCounter)
+
+    gBoard = buildBoard()
+    renderBoard(gBoard)
+    document.querySelector('.modal.game-over').style.display = 'none'
 }
 
 
@@ -71,38 +82,11 @@ function renderBoard(board) {
     elContainer.innerHTML = strHTML
 }
 
-function onCellMarked(ev, rowIdx, colIdx) {
-    var targetCell = gBoard[rowIdx][colIdx]
-    targetCell.isMarked = !targetCell.isMarked
-    console.log(ev)
-    var counter = ++gGame.markedCount
-    ev.target.innerHTML = targetCell.isMarked ? FLAG : ''
-    console.log(counter)
-    return false
-}
-
-
-function gameOver() {
-    gGame.isOn = false
-
-}
-
-function checkVictory(gBoard) {
-    for (var i = 0; i < gBoard.length; i++) {
-        for (var j = 0; j < gBoard[0].length; j++) {
-            if (!gBoard[i][j].isShown && !gBoard[i][j].isMine) {
-                return false
-            }
-        }
-    }
-    return true
-
-}
-
-
 function onCellClicked(ev, rowIdx, colIdx) {
+    if(!gGame.isOn) return
     var targetCell = gBoard[rowIdx][colIdx]
     console.log(ev)
+
     if (gIsFirstClick) {
         setMines(rowIdx, colIdx)
         setMinesNegsCount(gBoard)
@@ -127,23 +111,56 @@ function onCellClicked(ev, rowIdx, colIdx) {
         targetCell.isShown = true
         gGame.shownCount++
         targetCell.mineAroundCount = numberOfMines
+        const elCell = document.querySelector(`.cell-${rowIdx}-${colIdx}`)
+        elCell.innerHTML = numberOfMines > 0 ? numberOfMines : ''
         if (numberOfMines === 0) {
             expandShown(gBoard, rowIdx, colIdx)
         }
 
-        const elCell = document.querySelector(`.cell-${rowIdx}-${colIdx}`)
-        elCell.innerHTML = numberOfMines > 0 ? numberOfMines : ''
     }
 
     if (checkVictory(gBoard)) {
-        alert('You Won')
+        // alert('You Won')
         var goodMood = document.querySelector('.smiley')
         goodMood.innerHTML = WIN_SMILEY
+        gameOver()
 
     }
     console.log(ev)
     console.log(gBoard)
 }
+
+function gameOver() {
+    gGame.isOn = false
+    gIsFirstClick = true
+    document.querySelector('.modal.game-over').style.display = 'block';
+
+}
+function onCellMarked(ev, rowIdx, colIdx) {
+    var targetCell = gBoard[rowIdx][colIdx]
+    targetCell.isMarked = !targetCell.isMarked
+    console.log(ev)
+    var counter = ++gGame.markedCount
+    ev.target.innerHTML = targetCell.isMarked ? FLAG : ''
+    console.log(counter)
+    return false
+}
+
+
+
+function checkVictory(gBoard) {
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            var cell = gBoard[i][j]
+            if (!cell.isShown && !cell.isMine) {
+                return false
+            }
+        }
+    }
+    return true
+
+}
+
 
 function expandShown(gBoard, rowIdx, colIdx) {
 
@@ -154,14 +171,12 @@ function expandShown(gBoard, rowIdx, colIdx) {
             if (i >= 0 && i < size && j >= 0 && j < size ) {
                 var tempCell = gBoard[i][j]
                 if (!tempCell.isMine) {
-                    targetCell.isShown = true
                     var letMinesAroundCount = countMinesAround(gBoard, i, j)
+                    tempCell.isShown = true
                     console.log(i, j, letMinesAroundCount)
                     targetCell.mineAroundCount = letMinesAroundCount
                     const elCell = document.querySelector(`.cell-${i}-${j}`)
                     elCell.innerHTML = letMinesAroundCount > 0 ? letMinesAroundCount : '🧩'
-
-                    
                 }
             }
         }

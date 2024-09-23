@@ -44,3 +44,29 @@ td {
 .cell.mine {
     background-color: red;  /* Optionally, mark mines with red */
 }
+
+
+.modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(0, 0, 0);
+    padding: 20px;
+    border: 2px solid black;
+    z-index: 1000;
+    text-align: center;
+  }
+  
+  .modal.victory {
+    display: none;
+  }
+  
+  .modal-content {
+    padding: 10px;
+  }
+  
+  .modal.victory.show {
+    display: block; /* Display the modal when the game is won */
+  }
