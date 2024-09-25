@@ -1,8 +1,18 @@
+
+
+
 body {
-    background-color: black;
-    color: rgb(238, 233, 233);
     text-align: center;
+    color :rgb(238, 233, 233);
+    background-color: #f0f0f0; 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
+    background-image: url('../images/dark.jpg');
+
 }
 
 .board-container {
@@ -70,3 +80,34 @@ td {
   .modal.victory.show {
     display: block; /* Display the modal when the game is won */
   }
+
+  .hintButton {
+    margin: 20px;
+    text-align: center;
+}
+
+.hint-btn, .reset-btn, .pause-btn {
+    background-color: rgba(50, 50, 50, 0.7); /* Dark background with slight transparency */
+    color: rgb(238, 233, 233); /* Text color matching the theme */
+    border: 2px solid aqua; /* Aqua border to match the board */
+    border-radius: 10px; /* Smoother corners */
+    font-size: 1.2em;
+    padding: 10px 30px; /* Slightly wider padding for emphasis */
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for a modern feel */
+    transition: all 0.3s ease; /* Smooth transition on hover */
+}
+
+.hint-btn:hover, .reset-btn:hover, .pause-btn:hover{
+    background-color: rgba(80, 80, 80, 0.9); /* Brighter background on hover */
+    color: aqua; /* Aqua text on hover for contrast */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+}
+
+.hint-counter {
+    color: aqua; /* Highlight the hint counter in the same aqua color */
+    font-weight: bold; /* Make the hint counter bold */
+    margin-left: 5px; /* Add some spacing between the text and the counter */
+}
+
+
