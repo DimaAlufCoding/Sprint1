@@ -7,16 +7,22 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0
 }
+var gLevel3 = {
+    SIZE: 12,
+    MINES: 12
 
+}
 var gLevel2 = {
-    SIZE: 4,
-    MINES: 2
+    SIZE: 8,
+    MINES: 8
 }
 
-var gLevel = {
-    SIZE: 8,
-    MINES: 2
+var gLevel1 = {
+    SIZE: 4,
+    MINES: 4
 }
+var gTimerIntrval
+var gStartTime
 var gBoard, gIsFirstClick = true, gMineCount = 4, gLiveCounter, gIsHint = false, gHintLeft = 3
 
 
@@ -24,12 +30,14 @@ const HAPPY_SMILEY = '😃', WIN_SMILEY = '😈', SAD_SMILEY = '😔',
     BOOMB = '💣', FLAG = '🌙'
 
 
+var gCurrentLevel = gLevel1
+
 function onInit() {
-    startNewGame()
+    startNewGame(gCurrentLevel)
 
 }
 
-function startNewGame() {
+function startNewGame(level) {
     gGame.isOn = true
     gGame.shownCount = 0
     gGame.markedCount = 0
@@ -38,7 +46,11 @@ function startNewGame() {
     gIsFirstClick = true
     gIsHint = false
     gHintLeft = 3
+    resetTimer()
 
+    if (!level) {
+        level = gCurrentLevel
+    }
     updateHintDisplay(gHintLeft)
     const hintButton = document.querySelector('.hintButton button')
     hintButton.disabled = false
@@ -48,17 +60,18 @@ function startNewGame() {
 
     liveIndication(gLiveCounter)
 
-    gBoard = buildBoard()
+    gBoard = buildBoard(level)
     renderBoard(gBoard)
     document.querySelector('.modal.game-over').style.display = 'none'
 }
 
 
-function buildBoard() {
+function buildBoard(level) {
     const board = []
-    for (var i = 0; i < gLevel.SIZE; i++) {
+    var length = level.SIZE
+    for (var i = 0; i < length; i++) {
         board[i] = []
-        for (var j = 0; j < gLevel.SIZE; j++) {
+        for (var j = 0; j < length; j++) {
             board[i][j] = {
                 isMine: false,
                 mineAroundCount: 0,
@@ -102,30 +115,34 @@ function renderBoard(board) {
 function giveHint(ev, rowIdx, colIdx) {
     const size = gBoard.length;
 
-    let cellsToHide = [];
+    var cellsToHide = []
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (i >= 0 && i < size && j >= 0 && j < size) {
                 if (!gBoard[i][j].isShown) {
-                    gBoard[i][j].isShown = true;
-                    cellsToHide.push({ i: i, j: j });
+                    gBoard[i][j].isShown = true
+                    cellsToHide.push({ i: i, j: j })
                 }
             }
         }
     }
 
-    renderBoard(gBoard);
+    renderBoard(gBoard)
     setTimeout(() => {
         for (var i = 0; i < cellsToHide.length; i++) {
-            var pos = cellsToHide[i];
-            gBoard[pos.i][pos.j].isShown = false;
+            var pos = cellsToHide[i]
+            gBoard[pos.i][pos.j].isShown = false
         }
-        renderBoard(gBoard);
-    }, 1000);
+        renderBoard(gBoard)
+    }, 1000)
 }
 
 function onCellClicked(ev, rowIdx, colIdx) {
     var targetCell = gBoard[rowIdx][colIdx]
+
+
+
+
     if (gIsHint && !targetCell.isShown) {
         giveHint(ev, rowIdx, colIdx)
         gIsHint = false
@@ -138,9 +155,13 @@ function onCellClicked(ev, rowIdx, colIdx) {
 
 
     if (gIsFirstClick) {
-        setMines(rowIdx, colIdx)
+        setMines(rowIdx, colIdx, gCurrentLevel)
         setMinesNegsCount(gBoard)
-
+        var elTimer = document.querySelector('.timer')
+        if (elTimer) {
+            elTimer.innerText = '00'
+        }
+        startTimer()
         renderBoard(gBoard)
         gIsFirstClick = false
     }
@@ -154,16 +175,22 @@ function onCellClicked(ev, rowIdx, colIdx) {
         if (gLiveCounter === 0) {
             var sadMood = document.querySelector('.smiley')
             sadMood.innerHTML = SAD_SMILEY
-            alert('You Lose')
+            gameOver()
+            return
+
+
         }
     } else {
         const numberOfMines = countMinesAround(gBoard, rowIdx, colIdx)
-        targetCell.isShown = true
-        gGame.shownCount++
+
         targetCell.mineAroundCount = numberOfMines
         if (numberOfMines === 0) {
             expandShown(gBoard, rowIdx, colIdx)
-            
+
+        }
+        else {
+            targetCell.isShown = true
+            gGame.shownCount++
         }
 
     }
@@ -180,10 +207,18 @@ function onCellClicked(ev, rowIdx, colIdx) {
 
 }
 
+function resetTimer() {
+    clearInterval(gTimerIntrval)
+    var elTimer = document.querySelector('.timer')
+    if (elTimer) {
+        elTimer.innerText = '00'
+    }
+}
+
 function gameOver() {
     gGame.isOn = false
     gIsFirstClick = true
-    document.querySelector('.modal.game-over').style.display = 'block';
+
 
 }
 function onCellMarked(ev, rowIdx, colIdx) {
@@ -201,68 +236,110 @@ function onCellMarked(ev, rowIdx, colIdx) {
 function checkVictory(gBoard) {
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
-            var cell = gBoard[i][j];
-            if (!cell.isMine && !cell.isShown) {
+            var cell = gBoard[i][j]
+            if (!cell.isMine && !cell.isShown) return false
+            if (cell.isMine && !cell.isMarked && gLiveCounter <= 0) return false
+            if (!cell.isMine && cell.isMarked) return false
 
-                return false;
-            }
-            if (cell.isMine && !cell.isMarked && gLiveCounter <= 0) {
-
-                return false;
-            }
         }
     }
 
-    return true;
+
+
+    var recordKey
+    switch (gCurrentLevel.SIZE) {
+        case gLevel1.SIZE:
+            recordKey = 'recordBeginner'
+            break
+        case gLevel2.SIZE:
+            recordKey = 'recordMedium'
+            break
+        case gLevel3.SIZE:
+            recordKey = 'recordExpert'
+            break
+        default:
+            console.error("Unknown level")
+            return false
+    }
+
+
+    const currentRecord = sessionStorage.getItem(recordKey)
+
+
+    if (!currentRecord || gGame.secsPassed < currentRecord) {
+        sessionStorage.setItem(recordKey, gGame.secsPassed)
+        const bestScore = document.querySelector('.bestScore span')
+        bestScore.innerHTML = gGame.secsPassed ?? '';
+    }
+
+    resetTimer()
+
+    return true
 }
 
+
+function isNumeric(value) {
+    return !isNaN(value) && !isNaN(parseFloat(value))
+}
 
 function activateHint() {
     if (gHintLeft === 0) return
     gHintLeft--
     gIsHint = true
-    updateHintDisplay();
+    updateHintDisplay()
 
     if (gHintLeft === 0) {
-        const hintButton = document.querySelector('.hintButton button');
-        hintButton.disabled = true;
+        const hintButton = document.querySelector('.hintButton button')
+        hintButton.disabled = true
     }
 
 }
 
 function expandShown(gBoard, rowIdx, colIdx) {
-    const size = gBoard.length
-    console.log('hello')
-    if (rowIdx < 0 || rowIdx >= size || colIdx < 0 || colIdx >= size) return
-    console.log('hello2')
-    var currentCell = gBoard[rowIdx][colIdx]
+    console.log(gBoard, rowIdx, colIdx)
 
-    if (gBoard[rowIdx][colIdx].isShown && gBoard[rowIdx][colIdx].isMine) return
-    console.log('hello3')
-    currentCell.isShown = true
+    var n = gBoard[0].length
 
-    currentCell.mineAroundCount = countMinesAround(gBoard, rowIdx, colIdx)
-    
+    if (rowIdx >= n || colIdx >= n || rowIdx < 0 || colIdx < 0) {
+        return
+    }
 
-    if (currentCell.mineAroundCount > 0) return
+    var cell = gBoard[rowIdx][colIdx]
+
+    if (cell.isShown || cell.isMine) {
+        return
+    }
+
+    cell.mineAroundCount = countMinesAround(gBoard, rowIdx, colIdx)
+    cell.isShown = true
+    gGame.shownCount++
+
+    if (cell.mineAroundCount > 0) {
+        return
+    }
+
+    const directions = [
+        [-1, 0],  // Up
+        [1, 0],   // Down
+        [0, -1],  // Left
+        [0, 1],   // Right
+
+    ]
+
+    directions.forEach(([xDirection, yDirection]) => {
+        expandShown(gBoard, rowIdx + xDirection, colIdx + yDirection)
+    })
+
     renderBoard(gBoard)
-    expandShown(gBoard, rowIdx - 1, colIdx)
-    expandShown(gBoard, rowIdx + 1, colIdx)
-    expandShown(gBoard, rowIdx, colIdx - 1)
-    expandShown(gBoard, rowIdx, colIdx + 1)
-    // expandShown(gBoard, rowIdx - 1, colIdx - 1)
-    // expandShown(gBoard, rowIdx - 1, colIdx + 1)
-    // expandShown(gBoard, rowIdx + 1, colIdx - 1)
-    // expandShown(gBoard, rowIdx + 1, colIdx + 1)
-
 }
 
 
-function setMines(firstRowIdx, firstColIdx) {
+
+function setMines(firstRowIdx, firstColIdx, level) {
     var minesSet = 0
     const size = gBoard.length
 
-    while (minesSet < gLevel.MINES) {
+    while (minesSet < level.MINES) {
         var rowIdx = Math.floor(Math.random() * size)
         var colIdx = Math.floor(Math.random() * size)
         if (rowIdx === firstRowIdx && colIdx === firstColIdx) continue
@@ -321,7 +398,49 @@ function updateHintDisplay() {
 }
 
 
+function onChangeDifficulty(level) {
+    switch (level) {
+        case 'beginner':
+            gCurrentLevel = gLevel1
+            break
+        case 'medium':
+            gCurrentLevel = gLevel2
+            break
+        case 'expert':
+            gCurrentLevel = gLevel3
+            break
+    }
 
+    startNewGame(gCurrentLevel)
+}
+
+
+function startTimer() {
+    gStartTime = Date.now()
+
+
+    gTimerIntrval = setInterval(() => {
+        const delta = Date.now() - gStartTime
+        const formattedTime = formatTime(delta)
+
+        var elTimer = document.querySelector('.timer')
+        if (elTimer) {
+            elTimer.innerText = formattedTime
+        }
+        gGame.secsPassed = formattedTime
+
+    }, 1000)
+}
+
+function formatTime(ms) {
+
+    var seconds = Math.floor((ms % 60000) / 1000)
+    return `${padTime(seconds)}`
+}
+
+function padTime(val) {
+    return String(val).padStart(2, '0')
+}
 
 
 

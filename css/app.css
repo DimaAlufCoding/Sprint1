@@ -1,10 +1,8 @@
 
-
-
 body {
     text-align: center;
-    color :rgb(238, 233, 233);
-    background-color: #f0f0f0; 
+    color: rgb(238, 233, 233);
+    background-color: #f0f0f0;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -12,21 +10,57 @@ body {
     padding: 0;
     font-family: Arial, sans-serif;
     background-image: url('../images/dark.jpg');
-
 }
+
+
+.info-container {
+    display: flex;
+    justify-content: space-around; 
+    align-items: center; 
+    margin: 20px auto; 
+    width: 80%; 
+}
+
+
+.bestScore, .hintButton, .timer {
+    display: inline-block;
+    color: aqua;
+    font-size: 1.2em;
+    
+}
+
+
+.hintButton button {
+    background-color: rgba(50, 50, 50, 0.7);
+    color: rgb(238, 233, 233);
+    border: 2px solid aqua;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timer span, .bestScore span {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: aqua;
+}
+
 
 .board-container {
     margin: auto;
     color: aqua;
-    display: inline-block; /* Ensures the board is centered */
-    padding: 20px; /* Adds some space around the board */
-    border: 2px solid aqua; /* Gives a border around the container */
-    border-radius: 10px; /* Smooth corners */
+    display: inline-block; 
+    padding: 20px; 
+    border: 2px solid aqua; 
+    border-radius: 10px; 
 }
 
+
 table {
-    border-collapse: collapse; /* Removes gaps between table cells */
-    margin: auto; /* Centers the board */
+    border-collapse: collapse;
+    margin: auto; 
 }
 
 .cell {
@@ -34,30 +68,30 @@ table {
     width: 2em;
     height: 2em;
     text-align: center;
-    color: rgb(238, 233, 233); /* Text color */
-    border: 1px solid aqua; /* Add borders around cells */
-    background-color: rgb(50, 50, 50); /* Dark background for cells */
+    color: rgb(238, 233, 233); 
+    border: 1px solid aqua; 
+    background-color: rgb(50, 50, 50); 
 }
 
 .cell:hover {
-    background-color: rgb(80, 80, 80); /* Changes cell color on hover */
+    background-color: rgb(80, 80, 80); 
 }
 
 td {
-    padding: 10px; /* Adjust padding for a larger, more spaced-out board */
+    padding: 10px; 
 }
 
 .cell-revealed {
-    background-color: lightgray;  /* Revealed cell color */
+    background-color: lightgray;  
 }
 
 .cell.mine {
-    background-color: red;  /* Optionally, mark mines with red */
+    background-color: red;  
 }
 
 
 .modal {
-    display: none; /* Initially hidden */
+    display: none; 
     position: fixed;
     top: 50%;
     left: 50%;
@@ -67,47 +101,65 @@ td {
     border: 2px solid black;
     z-index: 1000;
     text-align: center;
-  }
-  
-  .modal.victory {
-    display: none;
-  }
-  
-  .modal-content {
-    padding: 10px;
-  }
-  
-  .modal.victory.show {
-    display: block; /* Display the modal when the game is won */
-  }
+}
 
-  .hintButton {
-    margin: 20px;
+.modal.victory {
+    display: none;
+}
+
+.modal-content {
+    padding: 10px;
+}
+
+.modal.victory.show {
+    display: block; 
+}
+
+
+.button-container {
+    margin: 20px auto;
     text-align: center;
 }
 
-.hint-btn, .reset-btn, .pause-btn {
-    background-color: rgba(50, 50, 50, 0.7); /* Dark background with slight transparency */
-    color: rgb(238, 233, 233); /* Text color matching the theme */
-    border: 2px solid aqua; /* Aqua border to match the board */
-    border-radius: 10px; /* Smoother corners */
-    font-size: 1.2em;
-    padding: 10px 30px; /* Slightly wider padding for emphasis */
-    cursor: pointer;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for a modern feel */
-    transition: all 0.3s ease; /* Smooth transition on hover */
+.button-container button {
+    margin: 10px;
 }
 
-.hint-btn:hover, .reset-btn:hover, .pause-btn:hover{
-    background-color: rgba(80, 80, 80, 0.9); /* Brighter background on hover */
-    color: aqua; /* Aqua text on hover for contrast */
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.4); /* Enhanced shadow on hover */
+
+button, .hint-btn, .smiley  , .timer, .liveCounter{
+    background-color: rgba(50, 50, 50, 0.7);
+    color: rgb(238, 233, 233);
+    border: 2px solid aqua;
+    border-radius: 10px;
+    font-size: 1.2em;
+    padding: 10px 30px;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
+
+button:hover, .hint-btn:hover,  .smiley:hover {
+    background-color: rgba(80, 80, 80, 0.9);
+    color: aqua;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.4);
+}
+
 
 .hint-counter {
-    color: aqua; /* Highlight the hint counter in the same aqua color */
-    font-weight: bold; /* Make the hint counter bold */
-    margin-left: 5px; /* Add some spacing between the text and the counter */
+    color: aqua;
+    font-weight: bold;
+    margin-left: 5px;
 }
 
 
+h2 {
+    color: aqua;
+    font-size: 2em;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+}
+
+span {
+    color: rgb(238, 233, 233);
+    font-weight: bold;
+}

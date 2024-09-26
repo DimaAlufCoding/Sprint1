@@ -10,14 +10,30 @@
 
 <body onload="onInit()">
 
-    <div class="hintButton">
-        <button class="hint-btn" onclick="activateHint()">Hints left <span class="hint-counter">3</span></button>
-        <h2 class="liveCounter">You have <span>3</span> lives left</h2>
-        <button class="smiley" onclick="startNewGame()"><span></span></button>
+    <div class="info-container">
+        <div class="bestScore">
+            <h2 class="bestScore">Best Score</h2>
+            <span></span>
+        </div>
+
+
+        <div class="hintButton">
+            <button class="hint-btn" onclick="activateHint()">Hints left <span class="hint-counter">3</span></button>
+            <h2 class="liveCounter">Lives left <span>3</span></h2>
+            <button class="smiley" onclick="startNewGame()"><span></span></button>
+        </div>
+
+
+        <div class="timer">
+            <span>00</span>
+        </div>
     </div>
+
+
     <table class="board-container">
         <tbody class="board"></tbody>
     </table>
+
 
     <div class="modal game-over" style="display: none;">
         <div class="modal-content">
@@ -25,12 +41,17 @@
             <button onclick="startNewGame()">Play Again</button>
         </div>
     </div>
+
+   
     <div>
-        <button class="reset-btn" onclick="resetGame()">Beginner</button>
-        <button class="pause-btn" onclick="pauseGame()">Medium</button>
-        <button class="pause-btn" onclick="pauseGame()">Expert</button>
+        <button class="beginner-btn" onclick="onChangeDifficulty('beginner')">Beginner</button>
+        <button class="medium-btn" onclick="onChangeDifficulty('medium')">Medium</button>
+        <button class="expert-btn" onclick="onChangeDifficulty('expert')">Expert</button>
     </div>
+
+
     <h2>Dima Aluf</h2>
+
 
     <script src="js/game.js"></script>
 </body>
