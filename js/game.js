@@ -23,7 +23,7 @@ var gLevel1 = {
 }
 var gTimerIntrval
 var gStartTime
-var gBoard, gIsFirstClick = true, gMineCount = 4, gLiveCounter, gIsHint = false, gHintLeft = 3
+var gBoard, gIsFirstClick = true, gLiveCounter, gIsHint = false, gHintLeft = 3, gSafeLeft = 3, gIsSafe = false
 
 
 const HAPPY_SMILEY = '😃', WIN_SMILEY = '😈', SAD_SMILEY = '😔',
@@ -46,7 +46,9 @@ function startNewGame(level) {
     gIsFirstClick = true
     gIsHint = false
     gHintLeft = 3
+    gSafeLeft = 3
     resetTimer()
+    loadBestScores()
 
     if (!level) {
         level = gCurrentLevel
@@ -64,7 +66,12 @@ function startNewGame(level) {
     renderBoard(gBoard)
     document.querySelector('.modal.game-over').style.display = 'none'
 }
+function gameOver() {
+    gGame.isOn = false
+    gIsFirstClick = true
 
+
+}
 
 function buildBoard(level) {
     const board = []
@@ -112,30 +119,6 @@ function renderBoard(board) {
     elContainer.innerHTML = strHTML
 }
 
-function giveHint(ev, rowIdx, colIdx) {
-    const size = gBoard.length;
-
-    var cellsToHide = []
-    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
-        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
-            if (i >= 0 && i < size && j >= 0 && j < size) {
-                if (!gBoard[i][j].isShown) {
-                    gBoard[i][j].isShown = true
-                    cellsToHide.push({ i: i, j: j })
-                }
-            }
-        }
-    }
-
-    renderBoard(gBoard)
-    setTimeout(() => {
-        for (var i = 0; i < cellsToHide.length; i++) {
-            var pos = cellsToHide[i]
-            gBoard[pos.i][pos.j].isShown = false
-        }
-        renderBoard(gBoard)
-    }, 1000)
-}
 
 function onCellClicked(ev, rowIdx, colIdx) {
     var targetCell = gBoard[rowIdx][colIdx]
@@ -196,6 +179,7 @@ function onCellClicked(ev, rowIdx, colIdx) {
     }
 
     if (checkVictory(gBoard)) {
+        renderBoard(gBoard)
         var goodMood = document.querySelector('.smiley')
         goodMood.innerHTML = WIN_SMILEY
         gameOver()
@@ -207,20 +191,7 @@ function onCellClicked(ev, rowIdx, colIdx) {
 
 }
 
-function resetTimer() {
-    clearInterval(gTimerIntrval)
-    var elTimer = document.querySelector('.timer')
-    if (elTimer) {
-        elTimer.innerText = '00'
-    }
-}
 
-function gameOver() {
-    gGame.isOn = false
-    gIsFirstClick = true
-
-
-}
 function onCellMarked(ev, rowIdx, colIdx) {
     var targetCell = gBoard[rowIdx][colIdx]
     targetCell.isMarked = !targetCell.isMarked
@@ -230,8 +201,6 @@ function onCellMarked(ev, rowIdx, colIdx) {
 
     return false
 }
-
-
 
 function checkVictory(gBoard) {
     for (var i = 0; i < gBoard.length; i++) {
@@ -243,8 +212,6 @@ function checkVictory(gBoard) {
 
         }
     }
-
-
 
     var recordKey
     switch (gCurrentLevel.SIZE) {
@@ -263,36 +230,37 @@ function checkVictory(gBoard) {
     }
 
 
-    const currentRecord = sessionStorage.getItem(recordKey)
+    const currentRecord = localStorage.getItem(recordKey)
 
 
     if (!currentRecord || gGame.secsPassed < currentRecord) {
-        sessionStorage.setItem(recordKey, gGame.secsPassed)
-        const bestScore = document.querySelector('.bestScore span')
-        bestScore.innerHTML = gGame.secsPassed ?? '';
+        localStorage.setItem(recordKey, gGame.secsPassed);
+
+       
+        if (recordKey === 'recordBeginner') {
+            document.querySelector('.bestScoreBeginner').innerHTML = gGame.secsPassed;
+        } else if (recordKey === 'recordMedium') {
+            document.querySelector('.bestScoreMedium').innerHTML = gGame.secsPassed;
+        } else if (recordKey === 'recordExpert') {
+            document.querySelector('.bestScoreExpert').innerHTML = gGame.secsPassed;
+        }
     }
+
 
     resetTimer()
 
     return true
 }
+function loadBestScores() {
+ 
+    const bestBeginner = localStorage.getItem('recordBeginner') || '00';
+    const bestMedium = localStorage.getItem('recordMedium') || '00';
+    const bestExpert = localStorage.getItem('recordExpert') || '00';
 
-
-function isNumeric(value) {
-    return !isNaN(value) && !isNaN(parseFloat(value))
-}
-
-function activateHint() {
-    if (gHintLeft === 0) return
-    gHintLeft--
-    gIsHint = true
-    updateHintDisplay()
-
-    if (gHintLeft === 0) {
-        const hintButton = document.querySelector('.hintButton button')
-        hintButton.disabled = true
-    }
-
+    // Update the HTML elements to display the best scores
+    document.querySelector('.bestScoreBeginner').innerHTML = bestBeginner;
+    document.querySelector('.bestScoreMedium').innerHTML = bestMedium;
+    document.querySelector('.bestScoreExpert').innerHTML = bestExpert;
 }
 
 function expandShown(gBoard, rowIdx, colIdx) {
@@ -333,71 +301,6 @@ function expandShown(gBoard, rowIdx, colIdx) {
     renderBoard(gBoard)
 }
 
-
-
-function setMines(firstRowIdx, firstColIdx, level) {
-    var minesSet = 0
-    const size = gBoard.length
-
-    while (minesSet < level.MINES) {
-        var rowIdx = Math.floor(Math.random() * size)
-        var colIdx = Math.floor(Math.random() * size)
-        if (rowIdx === firstRowIdx && colIdx === firstColIdx) continue
-        if (gBoard[rowIdx][colIdx].isMine) continue
-        gBoard[rowIdx][colIdx].isMine = true
-        minesSet++
-    }
-}
-
-
-function setMinesNegsCount(board) {
-    const size = board.length
-    for (var i = 0; i < size; i++) {
-        for (var j = 0; j < size; j++) {
-            if (!board[i][j].isMine) {
-                board[i][j].minesAroundCount = countMinesAround(board, i, j)
-
-            }
-        }
-    }
-}
-
-
-function countMinesAround(board, rowIdx, colIdx) {
-    const size = board.length
-    var minesAroundCount = 0
-    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
-        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
-            if (i >= 0 && i < size && j >= 0 && j < size && !(i === rowIdx && j === colIdx)) {
-                if (board[i][j].isMine) {
-                    ++minesAroundCount
-                }
-            }
-        }
-    }
-    return minesAroundCount
-}
-
-
-function countLives(rowIdx, colIdx) {
-    if (gBoard[rowIdx][colIdx].isMine) {
-        gLiveCounter--
-        liveIndication(gLiveCounter)
-    }
-}
-
-function liveIndication(gLiveCounter) {
-    var livesLeft = document.querySelector('h2 span')
-    livesLeft.innerHTML = gLiveCounter
-}
-
-
-function updateHintDisplay() {
-    const hintDisplay = document.querySelector('.hint-counter');
-    hintDisplay.innerText = gHintLeft;
-}
-
-
 function onChangeDifficulty(level) {
     switch (level) {
         case 'beginner':
@@ -413,37 +316,4 @@ function onChangeDifficulty(level) {
 
     startNewGame(gCurrentLevel)
 }
-
-
-function startTimer() {
-    gStartTime = Date.now()
-
-
-    gTimerIntrval = setInterval(() => {
-        const delta = Date.now() - gStartTime
-        const formattedTime = formatTime(delta)
-
-        var elTimer = document.querySelector('.timer')
-        if (elTimer) {
-            elTimer.innerText = formattedTime
-        }
-        gGame.secsPassed = formattedTime
-
-    }, 1000)
-}
-
-function formatTime(ms) {
-
-    var seconds = Math.floor((ms % 60000) / 1000)
-    return `${padTime(seconds)}`
-}
-
-function padTime(val) {
-    return String(val).padStart(2, '0')
-}
-
-
-
-
-
 

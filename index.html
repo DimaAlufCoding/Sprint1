@@ -11,22 +11,19 @@
 <body onload="onInit()">
 
     <div class="info-container">
-        <div class="bestScore">
-            <h2 class="bestScore">Best Score</h2>
-            <span></span>
-        </div>
+
 
 
         <div class="hintButton">
+            
             <button class="hint-btn" onclick="activateHint()">Hints left <span class="hint-counter">3</span></button>
             <h2 class="liveCounter">Lives left <span>3</span></h2>
+            <button class="safe-click" onclick="activateSafeClick()">Safe click left <span class="safe-counter">3</span></button>
             <button class="smiley" onclick="startNewGame()"><span></span></button>
+            <h2 class="timer"><span>00</span></h2>
         </div>
 
 
-        <div class="timer">
-            <span>00</span>
-        </div>
     </div>
 
 
@@ -41,8 +38,12 @@
             <button onclick="startNewGame()">Play Again</button>
         </div>
     </div>
-
-   
+    <div class="best-scores">
+        <div>Best Score Beginner: <span class="bestScoreBeginner"></span></div>
+        <div>Best Score Medium: <span class="bestScoreMedium"></span></div>
+        <div>Best Score Expert: <span class="bestScoreExpert"></span></div>
+    </div>
+    </div>
     <div>
         <button class="beginner-btn" onclick="onChangeDifficulty('beginner')">Beginner</button>
         <button class="medium-btn" onclick="onChangeDifficulty('medium')">Medium</button>
@@ -54,6 +55,13 @@
 
 
     <script src="js/game.js"></script>
+    <script src="js/mines.js"></script>
+    <script src="js/hint.js"></script>
+    <script src="js/safeClick.js"></script>
+    <script src="js/timer.js"></script>
+    <script src="js/livesLeft.js"></script>
+    
+    
 </body>
 
 </html>
